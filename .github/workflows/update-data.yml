@@ -1,0 +1,43 @@
+name: Update Map Data
+
+on:
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  update:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      - name: Setup Directory
+        run: mkdir -p public/data
+      - name: Download CSV
+        run: curl -sL "${{ secrets.CSV_URL }}" > public/data/all.csv
+      - name: Convert CSV to JSON 
+        run: python csv2json_small.py public/data/all.csv public/data/all.json
+      - name: Commit & push changes
+        run: |
+          git add -N .
+          if ! git diff --exit-code --quiet
+          then
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add .
+            git commit -m "Update"
+            git push
+          fi

@@ -1,0 +1,3 @@
+[build]
+  publish = "public/"
+  command = "echo 'No build steps'"
