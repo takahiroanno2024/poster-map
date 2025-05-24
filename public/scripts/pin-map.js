@@ -80,6 +80,16 @@ async function loadBoardPins(pins, layer, status=null) {
   });
 }
 
+function onLocationFound(e) {
+  const radius = e.accuracy / 2;
+
+  const locationMarker = L.marker(e.latlng).addTo(map)
+    .bindPopup("現在地").openPopup();
+  const locationCircle = L.circle(e.latlng, radius).addTo(map);
+
+  map.setView(e.latlng, 14);
+}
+
 function onLocationError(e) {
   // alert(e.message);
   const mapConfig = {
